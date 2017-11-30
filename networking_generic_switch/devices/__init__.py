@@ -26,6 +26,8 @@ LOG = logging.getLogger(__name__)
 # Internal ngs options will not be passed to driver.
 NGS_INTERNAL_OPTS = [
     {'name': 'ngs_mac_address'},
+    # Comma-separated list of physical networks to which this switch is mapped.
+    {'name': 'ngs_physical_networks'},
     {'name': 'ngs_ssh_connect_timeout', 'default': 60},
     {'name': 'ngs_ssh_connect_interval', 'default': 10},
     {'name': 'ngs_max_connections', 'default': 1},
@@ -72,6 +74,13 @@ class GenericSwitchDevice(object):
             elif 'default' in opt:
                 self.ngs_config[opt_name] = opt['default']
         self.config = device_cfg
+
+    def _get_physical_networks(self):
+        """Return a list of physical networks mapped to this switch."""
+        physnets = self.ngs_config.get('ngs_physical_networks')
+        if not physnets:
+            return []
+        return physnets.split(',')
 
     @abc.abstractmethod
     def add_network(self, segmentation_id, network_id):
